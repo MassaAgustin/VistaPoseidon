@@ -3,7 +3,7 @@
 Proyecto de administracion y logistica de balndeario.
 Realizado por Jeremias Manuel Eliseo y Agustin Isaac Vera Massa
 
-------------
+
 ###Como instalar
 + Luego de haber clonado el proyecto
 + Ubicarse en la carpeta `VistaPoseidon/Frontend`
@@ -14,7 +14,7 @@ Realizado por Jeremias Manuel Eliseo y Agustin Isaac Vera Massa
 + Y utilizar tu cuenta de prueba
    + Cuenta: TestGit
    + Contraseña: 1234
----
+
 ###Linkedin de Desarrolladores
 
 [Linkedin Jeremias Eliseo Manuel](https://www.linkedin.com/in/jeremias-manuel-37a7b1199/)
