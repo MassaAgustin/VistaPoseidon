@@ -10,7 +10,7 @@ const signIn = (body) => fetch(`${keyApi}/signin`, {
     }
 
 })
-    .then(res => { return res.json() })
+    .then(res => res.json() )
 
 
 const signUp = (body) => fetch(`${keyApi}/signup`, {       //Si tratamos a todas las tablas, tanto en update and delete, 
@@ -21,7 +21,8 @@ const signUp = (body) => fetch(`${keyApi}/signup`, {       //Si tratamos a todas
         'Accept': 'application/json'
     }
 })
-    .then(res => { return res.json() })
+    .then(res => res.json() )
+    .catch(res => res.json() )
 
 const getUserByToken = (token) => fetch(keyApi, {
     method: "GET",
@@ -29,7 +30,7 @@ const getUserByToken = (token) => fetch(keyApi, {
         'x-access-token': token
     }
 })
-    .then(res => { return res.json() })
+    .then(res => res.json() )
 
 
 export default {

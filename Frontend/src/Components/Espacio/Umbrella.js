@@ -55,6 +55,7 @@ function Umbrella(props) {
             {
                 renderDeploy ?
                     <DeployForm 
+                        key={index}
                         renderDeploy={renderDeploy} 
                         onLeaveForm={onLeaveForm}
                         checkClick={checkClick} 

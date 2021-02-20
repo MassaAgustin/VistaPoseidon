@@ -36,6 +36,7 @@ import { LoaderBall } from '../Animations/LoaderBall';
 import fetchFilter from '../../services/filter';
 
 function descendingComparator(a, b, orderBy) {
+  console.log(b)
   if (b[orderBy] < a[orderBy]) {
     return -1
   }
@@ -276,7 +277,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function EnhancedTable(props) {
 
-  const { title, data, parcialesData, handleEmailContent, ...rest } = props;
+  const { title, data, totalPages, totalData, parcialesData, handleEmailContent, ...rest } = props;
 
   const classes = useStyles();
 
@@ -328,16 +329,16 @@ export default function EnhancedTable(props) {
 
   const anyKey = (event) => {
 
-    if (page != 0) {
-      if (event.key == arrowLeft)
-        handleChangePage(event, page - 1);
-    }
-
-    const max = Math.floor(rows.length / 5);
-
-    if (page < max) {
-      if (event.key == arrowRight)
-        handleChangePage(event, page + 1);
+    if(!browsering){
+      if (page != 0){
+        if( event.key == arrowLeft)
+          handleChangePage(event, page - 1);
+      }
+      
+      if (page+1 < totalPages){
+        if( event.key == arrowRight)
+          handleChangePage(event, page + 1)
+      }
     }
   }
 
@@ -346,14 +347,15 @@ export default function EnhancedTable(props) {
     if (event.key == "x") {
       handleChangeViewBrowse(event)
       event.preventDefault();
-      document.getElementById('filterCommon').focus();
+      if(!viewBrowse) //Porque no se llega a actualizar el estado del viewBrowse, por eso esta negado
+        document.getElementById('filterCommon').focus(); 
     }
 
 
     if (viewBrowse) {
       if (event.key == "Enter") {
-        filter()
         setBrowsering(true)
+        filter()
       }
     }
   }
@@ -374,7 +376,7 @@ export default function EnhancedTable(props) {
       document.removeEventListener("keydown", pressEnter)
     }
 
-  }, [viewBrowse, filterValue, browsering])
+  }, [viewBrowse, filterValue, browsering, adding, selected])
 
   useEffect(() => {
     return () => clearState()
@@ -416,9 +418,18 @@ export default function EnhancedTable(props) {
   }
 
   const handleRequestSort = (property) => {
+
+    setBrowsering(true)
+
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
+
+    props.getPage(1, props.limit, property, isAsc ? 1 : -1)
+    .then((sortedData) => {
+      setRows(sortedData)
+      setBrowsering(false)
+    })
   };
 
   const handleSelectAllClick = (event) => {
@@ -445,14 +456,16 @@ export default function EnhancedTable(props) {
 
   const handleChangePage = (event, newPage) => {
     
+
     if ((backendPage * props.limit) < ((newPage + 1) * rowsPerPage)) {
+
       setBrowsering(true)
       props.getPage(backendPage + 1, props.limit)
         .then((pageData) => {
-          setParcialRows(prevState => prevState.concat(pageData[1]))
-          setRows(prevState => prevState.concat(pageData[0]))
-          setBackendPage(backendPage + 1)
+          setParcialRows(prevState => prevState.concat(pageData.response[1]))
+          setRows(prevState => prevState.concat(pageData.response[0]))
           setBrowsering(false)
+          setBackendPage(backendPage + 1)
           setPage(newPage);
         })
       }
@@ -562,11 +575,15 @@ export default function EnhancedTable(props) {
           {!adding && <TablePagination
             rowsPerPageOptions={[5, 50, 100]}
             component="div"
-            count={999}
+            count={totalData}
             rowsPerPage={rowsPerPage}
             page={page}
             onChangePage={handleChangePage}
             onChangeRowsPerPage={handleChangeRowsPerPage}
+            backIconButtonProps={{disabled: (browsering || (page == 0)) }}
+            backIconButtonText={"Anterior"}
+            nextIconButtonProps={{disabled: (browsering || (page+1 == totalPages)) }}
+            nextIconButtonText={"Siguiente"}
           />}
         </Paper>
 

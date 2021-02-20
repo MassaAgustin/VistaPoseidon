@@ -24,7 +24,7 @@ import BuildIcon from '@material-ui/icons/Build';
 import { ButtonGroup } from '@material-ui/core';
 
 
-
+//Jere and Master are deleted
 
 //Components
 //External
@@ -39,6 +39,7 @@ import { LoaderBall } from '../Animations/LoaderBall'
 
 
 function descendingComparator(a, b, orderBy) {
+  console.log(b)
   if (b[orderBy] < a[orderBy]) {
     return -1
   }
@@ -69,7 +70,7 @@ function EnhancedTableHead(props) {
 
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, adding, ...rest } = props;
   const createSortHandler = (property) => (event) => {
-    console.log('ordeno por' + property)
+    
     onRequestSort(property);
   };
 
@@ -289,7 +290,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function EnhancedTable(props) {
 
-  const { title, data, picker, handleEmailContent, ...rest } = props;
+  const { title, data, picker, totalPages, totalData, handleEmailContent, ...rest } = props;
 
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
@@ -337,16 +338,17 @@ export default function EnhancedTable(props) {
   }
 
   const anyKey = (event) => {
-    if (page != 0){
-      if( event.key == arrowLeft)
-        handleChangePage(event, page - 1);
-    }
-
-    const max = Math.floor(rows.length / rowsPerPage);
-
-    if (page < max){
-      if( event.key == arrowRight)
-        handleChangePage(event, page + 1)
+    
+    if(!browsering){
+      if (page != 0){
+        if( event.key == arrowLeft)
+          handleChangePage(event, page - 1);
+      }
+      
+      if (page+1 < totalPages){
+        if( event.key == arrowRight)
+          handleChangePage(event, page + 1)
+      }
     }
   }
 
@@ -356,7 +358,8 @@ export default function EnhancedTable(props) {
       if(event.key == "x"){
         handleChangeViewBrowse(event)
         event.preventDefault();
-        document.getElementById('filterCommon').focus();  
+        if(!viewBrowse) //Porque no se llega a actualizar el estado del viewBrowse, por eso esta negado
+          document.getElementById('filterCommon').focus();  
       }
     }
     
@@ -412,7 +415,6 @@ export default function EnhancedTable(props) {
 
   const filter = () => {
 
-    setBrowsering(true)
     switch (title) {
       case 'Clientes':
         fetchFilter.filterClient(JSON.stringify({ filter: filterValue }))
@@ -447,7 +449,7 @@ export default function EnhancedTable(props) {
 
     props.getPage(1, props.limit, property, isAsc ? 1 : -1)
     .then((sortedData) => {
-      setRows(sortedData)
+      setRows(sortedData.response)
       setBrowsering(false)
     })
 
@@ -473,16 +475,12 @@ export default function EnhancedTable(props) {
       setSelected([])
       setSelectedIndex([])
     }
-    console.log(selected)
-
   };
 
-  const handleChangePage = (event, newPage) => { // CONTROL DE PAGINATION
+  const handleChangePage = (event, newPage) => {
 
-    console.log(newPage)
-    console.log(backendPage)
-    if((backendPage*props.limit) < ((newPage+1)*rowsPerPage) )
-    {
+    if((backendPage*props.limit) < ((newPage+1)*rowsPerPage) ){
+      
       setBrowsering(true);
       let orderN
       if(order == 'asc') orderN = -1; else orderN = 1
@@ -490,7 +488,7 @@ export default function EnhancedTable(props) {
 
       props.getPage(backendPage+1, props.limit, orderBy, orderN)
       .then((pageData) => {
-        setRows(prevState => prevState.concat(pageData))
+        setRows(prevState => prevState.concat(pageData.response))
         setBrowsering(false)
         setBackendPage(backendPage+1)
         setPage(newPage);
@@ -619,12 +617,15 @@ export default function EnhancedTable(props) {
         {!adding && <TablePagination
           rowsPerPageOptions={[5, 50, 100]}
           component="div"
-          count={999}
+          count={totalData}
           rowsPerPage={rowsPerPage}
           page={page}
           onChangePage={handleChangePage}
           onChangeRowsPerPage={handleChangeRowsPerPage}
-          en
+          backIconButtonProps={{disabled: (browsering || (page == 0)) }}
+          backIconButtonText={"Anterior"}
+          nextIconButtonProps={{disabled: (browsering || (page+1 == totalPages)) }}
+          nextIconButtonText={"Siguiente"}
         />}
       </Paper>
       

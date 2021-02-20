@@ -2,10 +2,11 @@ import React  from 'react'
 import TableDetail from '../Table/TableDetail';
 import fetchIngreso from '../../services/ingreso'
 
+import {limit} from '../../config.json'
 
 export default function Ingresos(props) {
 
-    const { data, parcialesData, handleEmailContent, ...rest } = props;
+    const { data, parcialesData, totalData, totalPages, handleEmailContent, ...rest } = props;
 
 
     function deleteIngreso(id){
@@ -40,8 +41,10 @@ export default function Ingresos(props) {
                     toastSuccess={props.toastSuccess}
                     delete={deleteIngreso}
                     update ={updateIngreso}
-                    limit = {5}
+                    limit = {limit}
                     getPage = {getPage}
+                    totalData={totalData}
+                    totalPages={totalPages}
                 />
             </div>
     )

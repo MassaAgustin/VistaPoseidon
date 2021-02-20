@@ -4,9 +4,10 @@ const Context = createContext()
 
 const Provider = ({ children }) => {
     
-    const [isAuth, setIsAuth] = useState(true)
-    const [isSendEmail, setIsSendEmail] = useState(false)
-    const [isSettings, setIsSettings] = useState(true);
+    const [isAuth, setIsAuth] = useState(true);
+    const [isSettings, setIsSettings] = useState(false);
+
+    const [nameRoute, setNameRoute] = useState('')
 
     const value = {
         isAuth,
@@ -16,19 +17,13 @@ const Provider = ({ children }) => {
         logOut: () => {
             setIsAuth(false)
         },
-        isSendEmail,
-        activateEmail: () => {
-            setIsSendEmail(true)
-        },
-        desactivateEmail: () => {
-            setIsSendEmail(false)
-        },
-        setEmailFalse: () => {
-            setIsSendEmail(false)
-        },
         isSettings,
         toggleSettings: () => {
             setIsSettings(!isSettings)
+        },
+        nameRoute,
+        handleRoute: (name) => {
+            setNameRoute(name)
         }
     }
 

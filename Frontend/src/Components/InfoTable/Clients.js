@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react'
 import TableStyled from '../Table/Table';
 import http from '../../services/client'
 
+import {limit} from '../../config.json'
+
 export default function Users(props) {
 
-    const { picker, toggleRenderComponent, ...rest } = props;
+    const { picker, toggleRenderComponent, totalData, totalPages, ...rest } = props;
 
     function deleteUser(id){
         props.toastWarn("Cliente eliminado");
@@ -41,7 +43,9 @@ export default function Users(props) {
                     delete={deleteUser}
                     update ={updateUser}
                     getPage = {getPage}
-                    limit = {5}
+                    limit = {limit}
+                    totalData={totalData}
+                    totalPages={totalPages}
                 />
             </div>
     )

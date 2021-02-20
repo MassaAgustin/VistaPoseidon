@@ -2,15 +2,13 @@
     padding: 0;
     margin: 0;
 }
-
-
-.container-form-prices{
-    
-    position: left;
-    align-items: center;
-    justify-items: center;
-    
+.container-form-settings{
+        
     margin: auto auto;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 
     width: 25%;
     height: 50%;

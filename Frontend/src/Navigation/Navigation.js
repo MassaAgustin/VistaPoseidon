@@ -1,7 +1,9 @@
 import React, { Fragment, useState, useEffect } from 'react'
 
-
+//Internal
 import Estadisticas from '../Components/InfoTable/Estadisticas'
+
+import { page, limit } from '../config.json'
 
 //Tablas
 import Clients from '../Components/InfoTable/Clients'
@@ -16,14 +18,8 @@ import { Logout } from '../Components/Logout/Logout'
 import { EmailForm } from '../Components/Email/EmailForm'
 
 import Slidebar from '../Components/Animations/Slidebar'
-
-//External
-import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
-
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
 import { UmbrellaPrice } from '../Components/Config/UmbrellaPrice';
+import { Notification } from '../Components/Config/Notification';
 
 import Context from '../Context'
 
@@ -37,6 +33,12 @@ import ingresoFetch from '../services/ingreso'
 import placeFetch from '../services/place'
 import rentFetch from '../services/rent'
 import priceFetch from '../services/price'
+
+//External
+import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 export default function Navigation() {
@@ -62,6 +64,10 @@ export default function Navigation() {
         ['deuda']: 'vacio',
         ['fecha_creacion']: 'vacio'
     }]);
+
+    const [ingresoPages, setIngresoPages] = useState()
+    const [ingresoTotalData, setIngresoTotalData] = useState()
+    
 
     const [ingresoParcialData, setIngresoParcialData] = useState([{
         parciales: []
@@ -92,8 +98,6 @@ export default function Navigation() {
     const [loadPrice, setLoadPrice] = useState(true);
     const [loadPlaceMain, setLoadPlaceMain] = useState(true)
 
-
-
     function EmailFormConf() {
         return <EmailForm body={emailContent} />
     }
@@ -115,8 +119,10 @@ export default function Navigation() {
                     toastWarn={toastWarn}
                     handleEmailContent={handleEmailContent}
                     picker={false}
-                    data = {clientData}
+                    data = {clientData.response}
                     handleData = {setClientData}
+                    totalData ={clientData.totalData}
+                    totalPages={clientData.totalPages}
                 />
             </div>
         )
@@ -131,12 +137,14 @@ export default function Navigation() {
                     handleEmailContent={handleEmailContent}
                     toastWarn={toastWarn}
                     picker={false}
-                    data = {rentData}
+                    data = {rentData.response}
                     handleData = {setRentData}
                     handleIngresoData = {setIngresoData}
-                    clients = {clientData}
+                    clients = {clientData.response}
                     places = {placeData}
                     prices = {priceData}
+                    totalData ={rentData.totalData}
+                    totalPages={rentData.totalPages}
                 />
             </div>
         )
@@ -159,6 +167,8 @@ export default function Navigation() {
                     handleParcialData = {handleParcialData}
                     data = {ingresoData}
                     parcialesData = {ingresoParcialData}
+                    totalData ={ingresoTotalData}
+                    totalPages={ingresoPages}
                 />
             </div>
         )
@@ -182,8 +192,8 @@ export default function Navigation() {
         return (
             <div className="total">
                 <Estadisticas
-                clientData = {clientData}
-                rentData = {rentData}
+                clientData = {clientData.response}
+                rentData = {rentData.response}
                 ingresoData = {ingresoParcialData}
                 egresoData = {egresoParcialData}
                 priceData= {priceData}
@@ -215,29 +225,83 @@ export default function Navigation() {
         const second = b.tipo.substring(b.tipo.length - 3, b.tipo.length)
         return first - second;
     }
+
+    const clearState = () => {
+        setClientData()
+        setLoadClient()
+
+        setEgresoData()
+        setEgresoParcialData()
+        setLoadEgresoP()
+        setLoadEgreso()
+
+        setIngresoData()
+        setIngresoParcialData()
+        setIngresoPages()
+        setIngresoTotalData()
+        setLoadIngresoP()
+        setLoadIngreso()
+
+        setPlaceData() 
+        setLoadPlace()
+        setPlaceDataMain()
+        setLoadPlaceMain()
+
+        setRentData()
+        setLoadRent()
+
+        setPriceData()
+        setLoadPrice()
+    }
+
+    const chooseComponent = (nameRoute) => {
+        switch (nameRoute) {
+            case "/prices": {
+                return <UmbrellaPrice />
+            }
+            break;
+        
+            case "/notifications": {
+                return <Notification />
+            }
+            break;
+            case "/sendemail": {
+                return EmailFormConf()
+            }
+            break;
+
+            default: 
+                console.log("falta especificar la ruta")
+            break;
+        }
+    }
   
     useEffect(() => {
 
+        clientFetch.get(page,limit).then(clients => { 
+            setClientData(clients)
+            setLoadClient(false) 
+        })
 
-        clientFetch.get(1,5).then(data => { setClientData(data); setLoadClient(false) })
-
-        egresoFetch.get(1,5)
-        .then(data => {
-            if (data[0].length){
-                setEgresoData(data[0]);
-                setEgresoParcialData(data[1]);   
+        egresoFetch.get(page,limit)
+        .then(egresos => {
+            if (egresos[0].length){
+                setEgresoData(egresos[0])
+                setEgresoParcialData(egresos[1])  
             }
-            setLoadEgresoP(false); 
+            setLoadEgresoP(false)
             setLoadEgreso(false)
         })
 
-        ingresoFetch.get(1,5)
-        .then(data => {
-            if(data[0].length){
-                setIngresoData(data[0]); 
-                setIngresoParcialData(data[1]); 
+        ingresoFetch.get(page,limit)
+        .then(ingresos => {
+            if(ingresos.response[0].length){
+                setIngresoData(ingresos.response[0])
+                setIngresoParcialData(ingresos.response[1])
+                setIngresoPages(ingresos.totalPages)
+                setIngresoTotalData(ingresos.totalData)
             }
-            setLoadIngresoP(false); 
+            setLoadIngresoP(false)
             setLoadIngreso(false) 
         })
 
@@ -246,27 +310,30 @@ export default function Navigation() {
             
             data.sort( (a,b) => comparePlaces(a,b) ) //ordena las sombrillas ascendentemente
             
-            setPlaceData(data); 
+            setPlaceData(data)
             setLoadPlace(false) 
         })
 
         placeFetch.getViewMain()
         .then(data => {
-            setPlaceDataMain(data);
+            setPlaceDataMain(data)
             setLoadPlaceMain(false)
         })
 
-        rentFetch.get(1,5).then(data => {
-            if(data.length){
-                setRentData(data); 
+        rentFetch.get(page,limit).then(rents => {
+            if(rents.response.length){
+                setRentData(rents)
             }
             setLoadRent(false)
         })
 
-        priceFetch.get().then(data => { setPriceData(data); setLoadPrice(false) })
+        priceFetch.get().then(data => { 
+            setPriceData(data)
+            setLoadPrice(false) 
+        })
 
+        return () => clearState()
 
-        
     }, [])
     
     return ((loadPlace || loadRent || loadIngreso || loadIngresoP || loadEgreso || loadEgresoP ||loadPrice || loadClient || loadPlaceMain) ? (
@@ -280,34 +347,31 @@ export default function Navigation() {
         <Router onUpdate={() => window.scrollTo(0, 0)}>
             <Slidebar />
             <ToastContainer />
-            <Context.Consumer>{          //Todo esto puede ir a parar a un archivo Routes
-                ({ isAuth, logOut, isSendEmail, isSettings }) =>
+            <Context.Consumer>
+            {
+                ({ isAuth, isSettings, nameRoute }) =>
                     isAuth ? (
+
                         <Fragment>
-                            {/* <Redirect to="/" /> */}
-                            <Switch>
-                                {isSendEmail && <Route path="/sendemail" component={EmailFormConf} />}
-                                <Route exact path="/" component={EspacioConf} />
-                                <Route path="/clients" component={ClientConf} />
-                                <Route path="/rents" component={RentConf} />
-                                <Route path="/ingresos" component={IngresoConf} />
-                                <Route path="/egresos" component={EgresoConf} />
-                                <Route path='/estadisticas' component={EstadisticasConf} />
-                                
-                                {/* <Route path="/price" component={PriceConf} /> Esta ruta va para la mod de precio de sombrillas*/}
-                                {isSettings && <Route path="/prices" component={UmbrellaPrice} />}
-                                <Route exact path="/logout" >
-                                    <Logout onClick={logOut} /> {/*  //Este va asi por el methodo logOut :( */}
-                                </Route>
-                                {isSendEmail && <Route path="/sendemail" component={EmailFormConf} />}
-                                {isSettings && <Route path="/prices" component={UmbrellaPrice} />}
-                            </Switch>
+                            <Route exact path="/" component={EspacioConf} />
+                            <Route path="/clients" component={ClientConf} />
+                            <Route path="/rents" component={RentConf} />
+                            <Route path="/ingresos" component={IngresoConf} />
+                            <Route path="/egresos" component={EgresoConf} />
+                            <Route path='/estadisticas' component={EstadisticasConf} />
+                            <Route exact path="/logout" component={Logout} />
+                            {isSettings && 
+                                <Route path={nameRoute}>
+                                    {chooseComponent(nameRoute)} {/* //Dynamic Route for settings */}
+                                </Route> 
+                            } 
+                            <Redirect to="/" />
                         </Fragment>
                     ) : (
-                            <Fragment>
-                                <Redirect to="/login" />
-                                <Route path="/login" component={FormUser} />
-                            </Fragment>
+                        <Fragment>
+                            <Redirect to="/login" />
+                            <Route path="/login" component={FormUser} />
+                        </Fragment>
                         )
             }</Context.Consumer>
 

@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 
 import logoFB from '../../icons/fb_original.png';
 import logoTW from '../../icons/tw_original.png';
@@ -11,6 +11,7 @@ import ConfigAdvanced from './ConfigAdvanced';
 
 
 import '../../styles/Login.scss';
+import { TramRounded } from '@material-ui/icons';
 
 function GlobalSession(props) {
 
@@ -20,7 +21,12 @@ function GlobalSession(props) {
 
     const { onLogin, onRegister, ...rest } = props;
 
-    const handleLoading = () => {
+    const handleLogin = async (event,email,password) => {
+        toggleLoading()
+        await onLogin(event,email,password,setLoading)
+    }
+
+    const toggleLoading = () => {
         setLoading(!loading);
     }
 
@@ -55,6 +61,18 @@ function GlobalSession(props) {
         }
     }
 
+    const clearState = () => {
+        setIsLoginActive(true)
+        setIsConfigActive(false)
+        setLoading(false)
+    }
+
+    useEffect(() => {
+        
+        return () => clearState()
+
+    }, [])
+
 
     return (
         <div className="form-box">
@@ -66,10 +84,10 @@ function GlobalSession(props) {
             </div>
             {
                 isLoginActive ? (
-                    <Login onSubmit={onLogin} isLoginActive={isLoginActive} handleLoading={handleLoading} />
+                    <Login onSubmit={handleLogin} isLoginActive={isLoginActive} />
                 ) : (
                 <>
-                    <Register onSubmit={onRegister}  isLoginActive={isLoginActive} handleLoading={handleLoading} />
+                    <Register onSubmit={onRegister}  isLoginActive={isLoginActive} />
                     <div className={getClassNameConfigAdvanced()} onClick={toogleConfig}> 
                         <div className="text">Configuracion avanzada</div>
                     </div>

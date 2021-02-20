@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Context from '../../Context'
 
 import UserForm from './GlobalSession';
@@ -6,11 +6,29 @@ import UserForm from './GlobalSession';
 import fetchUser from '../../services/user';
 
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const toastSuccess = (message) => {  //Esto llevarlo a un consumer/provider
+    toast.success(message, {
+        draggable: true,
+        position: toast.POSITION.BOTTOM_RIGHT
+    })
+}
+
+const toastWarn = (message) => {
+    toast.warn(message, {
+        draggable: true,
+        position: toast.POSITION.BOTTOM_RIGHT
+    })
+}
+
+
 export const FormUser = () => {
 
-    const [isLogged, setIsLogged] = useState(false); //creo que esto da un warning
+    const [isLogged, setIsLogged] = useState(false); 
 
-    const checkLogin = (event, email, password) => {
+    const checkLogin = (event, email, password, setLoading) => {
         event.preventDefault()
     
         const body = JSON.stringify({
@@ -20,9 +38,19 @@ export const FormUser = () => {
         if(email.value && password.value){
             fetchUser.signIn(body)
             .then(response => {
-                const token = response.token;
-                localStorage.setItem('x-token', token)
-                setIsLogged(true)
+                if(response.success){
+                    const token = response.token;
+                    localStorage.setItem('x-token', token)
+                    setIsLogged(true)
+                    setLoading(false)
+                }else{
+                    toastWarn(response.message)
+                    setIsLogged(false)
+                    setLoading(false)
+                }
+            })
+            .catch(err => {
+                console.log(err)
             })
         }
     }
@@ -42,6 +70,12 @@ export const FormUser = () => {
             })
         }
     }
+
+    useEffect(() => {
+        
+        return () => setIsLogged()
+
+    }, [])
 
     return(
 

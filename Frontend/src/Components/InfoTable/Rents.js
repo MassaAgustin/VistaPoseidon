@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react'
 import TableStyled from '../Table/Table';
 import fetchRent from '../../services/rent'
 
-
+import {limit} from '../../config.json'
 
 export default function Rents(props) {
 
-    const { picker, infoTablePick, ...rest } = props;
+    const { picker, infoTablePick, totalData, totalPages, ...rest } = props;
 
 
 
@@ -49,9 +49,11 @@ export default function Rents(props) {
                     delete={deleteRent}
                     update ={updateRent}
                     getPage = {getPage}
-                    limit = {5}
+                    limit = {limit}
                     picker={picker}
                     infoTablePick={infoTablePick}
+                    totalData={totalData}
+                    totalPages={totalPages}
                 />
             </div>
     )

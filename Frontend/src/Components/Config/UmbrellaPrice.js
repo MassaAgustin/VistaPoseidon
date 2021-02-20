@@ -12,7 +12,7 @@ import Context from '../../Context'
 export const UmbrellaPrice = () => {
 
 
-    const [render, setRender] = useState(true);
+    const [render, setRender] = useState(false);
 
     const [umbrellas, setUmbrellas] = useState('');
     const [currentUmbrella, setCurrentUmbrella] = useState({ precio: [] });
@@ -33,10 +33,10 @@ export const UmbrellaPrice = () => {
     }
 
     const handleUmbrella = (index) => {
-        
+
         setNombre(umbrellas[index].nombre)
         setCurrentUmbrella(umbrellas[index])
-        
+
         setPrecio(umbrellas[index].precio[0].precio)
     }
 
@@ -44,7 +44,7 @@ export const UmbrellaPrice = () => {
 
         setCurrentTarifa(currentUmbrella.precio[index])
         setMes(currentUmbrella.precio[index].diaTope)
-        setPrecio(currentUmbrella.precio[index].precio) 
+        setPrecio(currentUmbrella.precio[index].precio)
     }
 
 
@@ -58,7 +58,7 @@ export const UmbrellaPrice = () => {
         console.log(nombre)
         console.log(mes)
         console.log(precio)
-        
+
         fetchPrice.update(id, JSON.stringify(body))  //este update esta al pedo
             .then(res => {
                 console.log("Sombrilla modificada: " + res);
@@ -101,7 +101,6 @@ export const UmbrellaPrice = () => {
                     .catch(err => console.log("No se pudo agregar la : " + err))
 
             })
-
     }
 
     const toggleButton = () => {
@@ -109,7 +108,7 @@ export const UmbrellaPrice = () => {
     }
 
     const handleRender = () => {
-        setRender(false);
+        setRender(!render);
     }
 
     const clearState = () => {
@@ -119,7 +118,6 @@ export const UmbrellaPrice = () => {
         setCurrentUmbrella()
         setRender()
         setButtonAdd()
-        setPrecio()
 
         setNombre()
         setPrecio()
@@ -128,24 +126,27 @@ export const UmbrellaPrice = () => {
 
     useEffect(() => {
 
-        fetchPrice.get()
-            .then(res => {
-                handleData(res);
-            })
+        if (!umbrellas) {
+            fetchPrice.get()
+                .then(res => {
+                    handleData(res);
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+        }
 
         return () => clearState();
 
     }, [])
 
-
     return (
-
         <Context.Consumer>
             {
                 ({ toggleSettings }) => {
 
                     {
-                        if (!render) {
+                        if (render) {
                             toggleSettings();
                             return <Redirect to="/logout" />
                         }
@@ -153,11 +154,11 @@ export const UmbrellaPrice = () => {
 
                     return umbrellas ? (
                         <Fragment>
-                            <div className="container-form-prices">
+                            <div className="container-form-settings">
                                 <div className='SL-div'>
                                     <label className="label-select" >Seleccionar sombrilla</label>
 
-                                    <select name="umbrellas" onChange={(event) => handleUmbrella(event.target.value) } title="Elegir Lugar">
+                                    <select name="umbrellas" onChange={(event) => handleUmbrella(event.target.value)} title="Elegir Lugar">
                                         <option value="Elegir Lugar" selected disabled >Elegir Lugar</option>
                                         {umbrellas.map((umbrella, index) => {
                                             return <option key={index} value={index}>{umbrella.nombre}</option>
@@ -192,9 +193,6 @@ export const UmbrellaPrice = () => {
                                         </a>
                                     )}
                                 </div>
-                           
-
-
 
                                 <div className='SL-div'>
                                     <label className="label-select" >Precio</label>
@@ -208,11 +206,8 @@ export const UmbrellaPrice = () => {
 
                                 <button onClick={handleRender}>Atrás</button>
                             </div>
-
                         </Fragment>
-                    ) : (
-                            <h2>Espera a que cargue pa, no seas impaciente ndeah</h2>
-                        )
+                    ) : <h2>Espera a que cargue pa, no seas impaciente ndeah</h2>
                 }
             }
         </Context.Consumer>

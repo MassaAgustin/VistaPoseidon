@@ -84,8 +84,7 @@ export default function RowsDetail(props) {
                 switchRender()
             ) : (
                 <TableBody>
-                    {props.stableSort(rows, props.getComparator(order, orderBy))
-                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                         .map((row, index) => {
                             
                             const isItemSelected = isSelected(row);

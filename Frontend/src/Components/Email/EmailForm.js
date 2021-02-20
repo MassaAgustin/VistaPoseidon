@@ -53,10 +53,10 @@ export const EmailForm = (props) => {
     return (
         <Context.Consumer>
             {
-                ({ desactivateEmail }) => {
+                ({ toggleSettings }) => {
                     {
                         if (!render) {
-                            desactivateEmail()
+                            toggleSettings()
                             return <Redirect to="/" />
                         }
                     }

@@ -110,18 +110,23 @@ export const ButtonRedirect = (props) => {
         <Fragment>
             <Context.Consumer>
                 {
-                    ({ activateEmail }) => {
+                    ({ toggleSettings, handleRoute, nameRoute }) => {
 
                         {
                             if (proceeds) {
                                 selectRequest()
-                                activateEmail()
-                                return <Redirect to="/sendemail" />
+                                toggleSettings()
+                                return <Redirect to={nameRoute} />
                             }
                         }
 
                         return < Tooltip title="Enviar Mensaje" arrow >
-                            <IconButton onClick={event => toggleProceeds()} >
+                            <IconButton 
+                                onClick={event => {
+                                    handleRoute("/sendemail")
+                                    toggleProceeds()
+                                }} 
+                            >
                                 <SendIcon />
                             </IconButton>
                         </Tooltip >

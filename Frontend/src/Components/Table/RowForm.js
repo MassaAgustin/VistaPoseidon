@@ -15,6 +15,10 @@ import { ButtonGroup, Button } from '@material-ui/core';
 import EffectTransparency from '../Animations/EffectTransparency'
 import PopUpMessage from '../Forms/PopUpMessage'
 
+import fetchUser from '../../services/user'
+import config from '../../config.json'
+import { AddAlarmRounded } from '@material-ui/icons';
+
 export default function RowForm(props) {
 
     const { selected, names, row, handleAdding, title, addRow, ...rest } = props;
@@ -67,7 +71,21 @@ export default function RowForm(props) {
 
     const handleAddData = () => {
 
-        addRow(newRow, title)
+        const body = {
+            email: newRow.email,
+            password: config.passwordDefault,
+            defaultRole: "client"
+        }
+
+    
+        fetchUser.signUp(JSON.stringify(body))
+        .then(res => {
+            console.log(res)
+            newRow.user = res._id;
+            console.log(newRow)
+            addRow(newRow, title)
+        })
+        .catch(err => console.log("No se pudo crear la cuenta del usuario: " + err))
     }
 
     return (
